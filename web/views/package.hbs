@@ -1,0 +1,138 @@
+
+<a href="/">npm Inspector</a>
+
+<article id="Pkg">
+    <h1>{{ results.name }}</h1>
+
+    <img src="https://snyk.io/test/npm/{{ results.name }}/{{ results.version }}/badge.svg" alt="Known Vulnerabilities"><br/>
+    <h2>{{ results.version }}</h2>
+
+    {{#if results.dependencies }}
+    Dependencies:
+    <ul>
+        {{#each results.dependencies }}
+        <li>
+            {{#if dependencies }}
+            <details>
+                <summary v-on:click="fetchPackage" data-package="{{ name}}">
+                    <a href="/package/{{ name }}">{{ name }}</a> v{{ version }}
+                </summary>
+
+                <ul id="depsFor{{ name }}">
+                    {{#each dependencies }}
+                    <li><a href="/package/{{ name }}">{{ name }}</a> v{{ version }}</li>
+                    {{/each}}
+                </ul>
+            </details>
+            {{else}} <a href="/package/{{ name }}">{{ name }}</a> v{{ version }} {{/if}}
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p>
+        ¯\_(ツ)_/¯<br/>
+        No dependencies
+    </p>
+    {{/if}}
+</article>
+
+<script id="TemplateDep" type="vue-template">
+    <div>
+        <details v-if="present(store.dependencies)">
+            <summary v-on:click="fetchPackage">
+                <a :href="href(store.name, store.version)">${ store.name }</a> v${ store.version }
+            </summary>
+
+            <ul :id="store.name" v-if="present(store.dependencies)">
+                <li v-for="sub in store.dependencies">
+                    <dep v-bind:store="sub"></dep>
+                </li>
+            </ul>
+        </details>
+        <div v-else>
+            <a :href="href(store.name, store.version)">${ store.name }</a> v${ store.version }
+        </div>
+    </div>
+</script>
+
+<script id="TemplatePackage" type="vue-template">
+    <article>
+        <h1>${ name }</h1>
+        <img :src="badge(name,version)" alt="Known Vulnerabilities"><br/>
+        <h2>${ version }</h2>
+
+    <div v-if="dependencies">
+        Dependencies:
+        <ul>
+            <li v-for="dep in dependencies">
+               <dep v-bind:store="dep"></dep>
+            </li>
+        </ul>
+    </div>
+    <div v-else>
+        <p>
+            ¯\_(ツ)_/¯<br/>
+            No dependencies
+        </p>
+    </div>
+    </article>
+</script>
+
+<!-- For $.get, a little lazy -->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://unpkg.com/vue"></script>
+
+<script>
+    var Package = {{{ jsonObject }}};
+
+    var Dep = Vue.component('dep', {
+        delimiters: ['${','}'],
+        props: ['store'],
+        template: '#TemplateDep',
+        methods: {
+            present: function(deps) {
+                return deps && deps.length >= 1;
+            },
+            href: function(package,version) {
+                return `/package/${package}/${version}`;
+            },
+            fetchPackage: function(evt) {
+
+                var selector = `#depsFor${evt.currentTarget.dataset.package} a`;
+                var itemsToFetch = document.querySelectorAll(selector);
+                var _self = this;
+
+                console.log(selector, itemsToFetch.length);
+
+                _self.store.dependencies.map((pkg, idx) => {
+                    let href = `//localhost:3000/package/${pkg.name}/${pkg.version}`;
+
+                    if (pkg.dependencies) {
+                        return;
+                    }
+
+                    jQuery.getJSON(href).then(function(res) {
+                        console.log('Response to append:', pkg, idx, res);
+                        Vue.set(pkg, `dependencies`, res.dependencies);
+                        //_self.store.dependencies[idx].$set('dependencies', res.dependencies);
+                    })
+                })
+            }
+        }
+    });
+
+    var app = new Vue({
+        delimiters: ['${','}'],
+        el: '#Pkg',
+        template: '#TemplatePackage',
+        data: Package,
+        methods: {
+            badge: function(package, version) {
+                return `https://snyk.io/test/npm/${package}/${version}/badge.svg`;
+            }
+        }
+    });
+</script>
+<footer>
+    <a href="//npmjs.com/package/{{ results.name }}/{{ results.version }}">View {{ results.name }} on npm</a>
+</footer>

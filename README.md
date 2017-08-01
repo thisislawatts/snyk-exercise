@@ -14,7 +14,10 @@ Getting Started
 API
 ---
 
-Responsible for returning and formatting the data for the UI.
+Responsible for returning and formatting the data for the UI. This application runs on [Koa](https://github.com/koajs/koa) and requires NodeJS 8+.
+
+
+### Endpoint
 
 /package/{name}/{version}
 
@@ -41,7 +44,8 @@ Responsible for returning and formatting the data for the UI.
 
 __Todo__
 
-* Add tests
+* Add tests/
+* Improve error handling for invalid responses eg. 404
 * Add caching for [registry.npmjs.org](https://registry.npmjs.org) queries, potentially Redis over Couch DB setup. 
 * With caching in place increase depth to which dependencies are resolved.
 
@@ -49,7 +53,7 @@ __Todo__
 Web
 ---
 
-🌈 Beautiful front end for this tool
+🌈 Beautiful front end. This runs on [Express](https://expressjs.com) and NodeJS 8.
 
 * [Homepage](http://localhost:3001/)
 * [Individual Package](http://localhost:3001/package/snyk)

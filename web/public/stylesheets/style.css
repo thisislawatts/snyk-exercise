@@ -1,0 +1,27 @@
+* {
+  font-size: 1rem;
+}
+
+body {
+  padding: 50px;
+  font: 1em "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+input, button {
+  font-size: 1.4em;
+  margin-bottom: 1em;
+}
+
+footer {
+  border-top: 1px dashed;
+  margin-top: 1.5em;
+  padding-top: 1.5em;
+}
+
+  footer a {
+    text-decoration: none;
+  }
