@@ -3,12 +3,14 @@ npm Inspector
 
 Repository containing two apps, __API__ and __Web__ for querying the [npm registry](https://registry.npmjs.org). __Web__ serves the results from the __API__.
 
+![Gif demo of the app]('./images/demo.gif)
+
 Getting Started
 ---
 
 * Clone the repository `git clone git@github.com:thisislawatts/snyk-exercise.git`
 * Open the `web` and `app` directories in seperate terminal and run `npm install` to install all of the dependencies for each of these.
-* Using the `npm run start` command will 
+* Using the `npm run start` command in each of these directories will start a server process.
 
 
 API
