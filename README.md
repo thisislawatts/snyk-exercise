@@ -1,0 +1,62 @@
+npm Inspector
+===
+
+Repository containing two apps, __API__ and __Web__ for querying the [npm registry](https://registry.npmjs.org). __Web__ serves the results from the __API__.
+
+Getting Started
+---
+
+* Clone the repository `git clone git@github.com:thisislawatts/snyk-exercise.git`
+* Open the `web` and `app` directories in seperate terminal and run `npm install` to install all of the dependencies for each of these.
+* Using the `npm run start` command will 
+
+
+API
+---
+
+Responsible for returning and formatting the data for the UI.
+
+/package/{name}/{version}
+
+```
+{
+    "name": ""
+    "version": "",
+    "dependencies": [
+        {
+            "name": "",
+            "version": "",
+            "dependencies": ""
+        }
+    ],
+    "devDependecies: [
+        {
+            "name": "",
+            "version": "",
+            "dependencies": ""
+        }
+    ]
+}
+```
+
+__Todo__
+
+* Add tests
+* Add caching for [registry.npmjs.org](https://registry.npmjs.org) queries, potentially Redis over Couch DB setup. 
+* With caching in place increase depth to which dependencies are resolved.
+
+
+Web
+---
+
+🌈 Beautiful front end for this tool
+
+* [Homepage](http://localhost:3001/)
+* [Individual Package](http://localhost:3001/package/snyk)
+
+__Todo__
+
+* Add tests
+* Server/client side validation of search queries
+* Add loading indicator for loading items when
+* Improve UI when expanding tree, the primary action is for users to expand tree rather than
