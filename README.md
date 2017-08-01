@@ -3,7 +3,7 @@ npm Inspector
 
 Repository containing two apps, __API__ and __Web__ for querying the [npm registry](https://registry.npmjs.org). __Web__ serves the results from the __API__.
 
-![Gif demo of the app]('./images/demo.gif)
+![Gif demo of the app](https://raw.githubusercontent.com/thisislawatts/snyk-exercise/master/images/demo.gif)
 
 Getting Started
 ---
