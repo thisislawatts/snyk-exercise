@@ -1,9 +1,11 @@
-const request = require("request");
-
 const NPM_ENDPOINT = "https://registry.npmjs.org/";
 
-Inspect = async function(package, version, levelToFetch) {
-  function getRequests(packages, levelToFetch) {
+class Inspector {
+  constructor(fetcher) {
+    this.fetcher = fetcher;
+  }
+
+  getRequests(packages, levelToFetch) {
     let reqs = [];
 
     if (!packages) {
@@ -15,7 +17,7 @@ Inspect = async function(package, version, levelToFetch) {
         let version = packages[name].replace(/^\D|\=/g, "");
 
         if (levelToFetch >= 1) {
-          return Inspect(name, version, levelToFetch);
+          return this.inspect(name, version, levelToFetch);
         }
 
         return { name, version };
@@ -23,57 +25,56 @@ Inspect = async function(package, version, levelToFetch) {
     );
   }
 
-  return new Promise((resolve, reject) => {
-    let packageName = `${package}`;
+  inspect(pkg, version, levelToFetch) {
+    return new Promise((resolve, reject) => {
+      let packageName = `${pkg}`;
 
-    if (packageName.match(/^@/)) {
-      packageName = packageName.replace(/\//, "%2f");
-    }
-
-    console.log("🙉");
-    console.log(NPM_ENDPOINT + packageName);
-
-    request(NPM_ENDPOINT + packageName, (err, res, body) => {
-      if (err) {
-        reject(err);
-        return;
+      if (packageName.match(/^@/)) {
+        packageName = packageName.replace(/\//, "%2f");
       }
 
-      levelToFetch--;
-
-      try {
-        let json = JSON.parse(body);
-
-        if (!version) {
-          version = json["dist-tags"].latest;
-        } else if (Object.keys(json["dist-tags"]).indexOf(version) >= 0) {
-          version = json["dist-tags"][version];
+      this.fetcher(NPM_ENDPOINT + packageName, (err, res, body) => {
+        if (err) {
+          reject(err);
+          return;
         }
 
-        let pack = json.versions[version];
+        levelToFetch--;
 
-        if (!pack) {
-          return resolve({
-            status: "error"
+        try {
+          let json = JSON.parse(body);
+
+          if (!version) {
+            version = json["dist-tags"].latest;
+          } else if (Object.keys(json["dist-tags"]).indexOf(version) >= 0) {
+            version = json["dist-tags"][version];
+          }
+
+          let pack = json.versions[version];
+
+          if (!pack) {
+            return resolve({
+              status: "error"
+            });
+          }
+
+          Promise.all([
+            this.getRequests(pack.dependencies, levelToFetch),
+            this.getRequests(pack.devDependencies, levelToFetch)
+          ]).then(results => {
+            resolve({
+              name: pkg,
+              version: version,
+              dependencies: results[0],
+              devDependencies: results[1]
+            });
           });
+        } catch (e) {
+          reject(e);
         }
-
-        Promise.all([
-          getRequests(pack.dependencies, levelToFetch),
-          getRequests(pack.devDependencies, levelToFetch)
-        ]).then(results => {
-          resolve({
-            name: package,
-            version: version,
-            dependencies: results[0],
-            devDependencies: results[1]
-          });
-        });
-      } catch (e) {
-        reject(e);
-      }
+      });
     });
-  });
-};
+  }
+}
 
-module.exports = Inspect;
+module.exports = Inspector;
